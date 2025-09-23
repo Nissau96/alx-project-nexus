@@ -1,0 +1,23 @@
+# Core Django & API
+Django==5.2.6
+djangorestframework==3.16.1
+asgiref==3.9.1
+pytz==2025.2
+sqlparse==0.5.3
+djangorestframework_simplejwt==5.5.1
+
+# Database
+psycopg2-binary==2.9.10
+
+# API Documentation
+drf-yasg==1.21.10
+PyYAML==6.0.2
+
+# Production / Deployment
+gunicorn==23.0.0
+dj-database-url==3.0.1
+whitenoise==6.10.0
+
+# Recommended for Frontend Integration
+django-cors-headers==4.8.0
+python-dotenv==1.1.1
