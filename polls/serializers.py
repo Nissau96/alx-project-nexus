@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from polls.models import Choice, Poll
+from polls.models import Choice, Poll, Vote
 
 
 # User Serializer
@@ -47,3 +47,31 @@ class PollSerializer(serializers.ModelSerializer):
             Choice.objects.create(poll=poll, **choice_data)
 
         return poll
+
+# Vote Serializer
+class VoteSerializer(serializers.ModelSerializer):
+    choice = serializers.PrimaryKeyRelatedField(queryset=Choice.objects.all())
+
+    class Meta:
+        model = Vote
+        fields = ['choice']
+
+
+# Result Serializer
+class ChoiceResultSerializer(serializers.ModelSerializer):
+    vote_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Choice
+        fields = ('id', 'choice_text', 'vote_count')
+
+
+
+# Poll Result Serializer
+class PollResultSerializer(serializers.ModelSerializer):
+    # I'm using the ChoiceResultSerializer I just made to handle the list of choices.
+    choices = ChoiceResultSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Poll
+        fields = ('id', 'questions', 'choices')

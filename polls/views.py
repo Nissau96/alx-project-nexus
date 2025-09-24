@@ -1,9 +1,12 @@
+from django.db.models import Count
 from django.shortcuts import render
+from django.utils import timezone
+from rest_framework.response import Response
 
-from .models import Poll
-from .serializers import UserSerializer, PollSerializer
-from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from .models import Poll, Vote
+from .serializers import UserSerializer, PollSerializer, VoteSerializer, PollResultSerializer
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
 # User Registration View
@@ -24,3 +27,68 @@ class PollDetailView(generics.RetrieveAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [AllowAny]
+
+
+class VoteCreateView(generics.CreateAPIView):
+    serializer_class = VoteSerializer
+    permission_classes = [IsAuthenticated]
+
+
+    def create(self, request, *args, **kwargs):
+        poll_id = self.kwargs.get('pk')
+        try:
+            poll = Poll.objects.get(pk=poll_id)
+        except Poll.DoesNotExist:
+            return Response({'error': 'Poll not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if poll.expiry_date and poll.expiry_date < timezone.now():
+            return Response({'error': 'This poll has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Vote.objects.filter(poll=poll, user=request.user).exists():
+            return Response({'error': 'You have already voted on this poll.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        choice = serializer.validated_data['choice']
+
+        if choice.poll != poll:
+            return Response({'error': 'This choice is not valid for this poll.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        Vote.objects.create(user=request.user, poll=poll, choice=choice)
+
+        return Response({'message': 'Your vote has been recorded!'}, status=status.HTTP_201_CREATED)
+
+
+# Poll Results View
+class PollResultsView(generics.RetrieveAPIView):
+    queryset = Poll.objects.all()
+    serializer_class = PollResultSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+
+        queryset = super().get_queryset().prefetch_related(
+            'choices'
+        ).annotate(
+
+        )
+        return queryset
+
+
+    def retrieve(self, request, *args, **kwargs):
+        poll = self.get_object()
+        choices_with_votes = poll.choices.annotate(vote_count=Count('vote'))
+
+        data = {
+            'id': poll.id,
+            'question_text': poll.question_text,
+            'choices': [
+                {
+                    'id': choice.id,
+                    'choice_text': choice.choice_text,
+                    'vote_count': choice.vote_count
+                } for choice in choices_with_votes
+            ]
+        }
+        return Response(data)
