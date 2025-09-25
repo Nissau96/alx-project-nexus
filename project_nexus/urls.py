@@ -38,7 +38,7 @@ swagger_ui_settings = {
 
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='/swagger/', permanent=True)),
+    path('', RedirectView.as_view(url='api/docs/', permanent=True)),
     path('admin/', admin.site.urls),
 
     # API Authentication Endpoints
