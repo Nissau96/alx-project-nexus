@@ -13,13 +13,27 @@ schema_view = get_schema_view(
    openapi.Info(
       title="Online Poll System API",
       default_version='v1',
-      description="API documentation for the ProDev Online Poll System project.",
-      contact=openapi.Contact(email="contact@example.com"), # Change this to your email
+      description="API documentation for the Project Nexus Online Polls Solution",
+      contact=openapi.Contact(email="uxperiencelabs@gmail.com"),
       license=openapi.License(name="BSD License"),
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
 )
+
+
+swagger_ui_settings = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT authorization header. Example: "Bearer {token}"'
+        }
+    }
+}
+
+
 
 
 urlpatterns = [
