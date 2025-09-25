@@ -32,6 +32,7 @@ class PollDetailView(generics.RetrieveAPIView):
 class VoteCreateView(generics.CreateAPIView):
     serializer_class = VoteSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Vote.objects.none()
 
 
     def create(self, request, *args, **kwargs):
