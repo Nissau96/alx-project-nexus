@@ -83,7 +83,7 @@ class PollResultsView(generics.RetrieveAPIView):
 
         data = {
             'id': poll.id,
-            'question_text': poll.question_text,
+            'questions': poll.questions,
             'choices': [
                 {
                     'id': choice.id,
