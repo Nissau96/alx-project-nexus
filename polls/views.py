@@ -20,7 +20,7 @@ class PollListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save(creator=self.request.user)
 
 
 class PollDetailView(generics.RetrieveAPIView):

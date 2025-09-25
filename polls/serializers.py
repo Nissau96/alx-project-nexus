@@ -32,20 +32,18 @@ class ChoiceSerializer(serializers.ModelSerializer):
 # Poll Model Serializer
 class PollSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True)
-    owner = serializers.ReadOnlyField(source='creator.username')
+    creator = serializers.ReadOnlyField(source='creator.username')
 
     class Meta:
         model = Poll
-        fields = ['id', 'questions', 'pub_date', 'expiry_date', 'creator', 'choices']
+        fields = ['id', 'questions', 'pub_date', 'expiry_date', 'choices', 'creator']
 
 
     def create(self, validated_data):
-
         choices_data = validated_data.pop('choices')
         poll = Poll.objects.create(**validated_data)
         for choice_data in choices_data:
             Choice.objects.create(poll=poll, **choice_data)
-
         return poll
 
 # Vote Serializer
@@ -69,7 +67,6 @@ class ChoiceResultSerializer(serializers.ModelSerializer):
 
 # Poll Result Serializer
 class PollResultSerializer(serializers.ModelSerializer):
-    # I'm using the ChoiceResultSerializer I just made to handle the list of choices.
     choices = ChoiceResultSerializer(many=True, read_only=True)
 
     class Meta:
