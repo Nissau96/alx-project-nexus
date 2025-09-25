@@ -95,6 +95,7 @@ WSGI_APPLICATION = 'project_nexus.wsgi.application'
 #Production Database Configuration
 DATABASES = {
     'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgresql://poll_db_4b6u_user:OgFDItlIPi3x12cmlEVTYetwiMpwkJbQ@dpg-d3aidoripnbc739kp750-a/poll_db_4b6u'),
         conn_max_age=600
     )
 }
