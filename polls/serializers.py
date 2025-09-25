@@ -32,7 +32,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
 # Poll Model Serializer
 class PollSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True)
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='creator.username')
 
     class Meta:
         model = Poll
