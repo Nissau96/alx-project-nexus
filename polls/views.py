@@ -81,15 +81,23 @@ class PollResultsView(generics.RetrieveAPIView):
         poll = self.get_object()
         choices_with_votes = poll.choices.annotate(vote_count=Count('vote'))
 
+        total_votes = sum(choice.vote_count for choice in choices_with_votes)
+
+        choices_data = []
+        for choice in choices_with_votes:
+            # Calculate the percentage.
+            percentage = (choice.vote_count / total_votes) * 100 if total_votes > 0 else 0
+            choices_data.append({
+                'id': choice.id,
+                'choice_text': choice.choice_text,
+                'vote_count': choice.vote_count,
+                'percentage': round(percentage, 1)
+            })
+
         data = {
             'id': poll.id,
             'questions': poll.questions,
-            'choices': [
-                {
-                    'id': choice.id,
-                    'choice_text': choice.choice_text,
-                    'vote_count': choice.vote_count
-                } for choice in choices_with_votes
-            ]
+            'total_votes': total_votes,
+            'choices': choices_data
         }
         return Response(data)
